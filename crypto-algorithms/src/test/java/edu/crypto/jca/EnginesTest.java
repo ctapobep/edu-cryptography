@@ -1,4 +1,4 @@
-package edu.cryptography.jca;
+package edu.crypto.jca;
 
 import org.bouncycastle.util.encoders.Hex;
 import org.testng.annotations.Test;
@@ -23,15 +23,23 @@ public class EnginesTest {
     }
 
     @Test
-    public void testCipherEngine() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, (Key) null);
+    public void testCipherEngine() throws Exception {
+        SecretKey key = KeyGenerator.getInstance("Blowfish").generateKey();
+
+        Cipher cipher = Cipher.getInstance("Blowfish");//algorithm/mode/padding e.g. DES/CBC/PKCS5Padding
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encrypted = cipher.doFinal("to decrypt".getBytes());
+
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decrypted = cipher.doFinal(encrypted);
+
+        assertEquals(new String(decrypted), "to decrypt");
     }
 
     @Test
     public void testSignatureEngine() throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
         KeyPair pair = KeyPairGenerator.getInstance("DSA").generateKeyPair();
-        byte[] data = {'t', 'o', 's', 'i', 'g', 'n'};
+        byte[] data = "to sign".getBytes();
 
         Signature toSign = Signature.getInstance("SHA1withDSA");
         PrivateKey priv = pair.getPrivate();
